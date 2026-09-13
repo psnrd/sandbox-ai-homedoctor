@@ -32,11 +32,16 @@ jobs:
         uses: actions/configure-pages@v5
         continue-on-error: true
 
+      - name: Prepare public site
+        run: |
+          mkdir -p _site
+          cp index.html demo.css demo.js _site/
+
       - name: Upload artifact
         if: ${{ steps.pages.outcome == 'success' }}
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
