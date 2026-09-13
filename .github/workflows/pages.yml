@@ -35,7 +35,8 @@ jobs:
       - name: Prepare public site
         run: |
           mkdir -p _site
-          cp index.html demo.css demo.js _site/
+          cp index.html demo.css theme.css demo.js _site/
+          cp -r assets _site/assets
 
       - name: Upload artifact
         if: ${{ steps.pages.outcome == 'success' }}
