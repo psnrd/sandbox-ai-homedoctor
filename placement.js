@@ -1,0 +1,36 @@
+// Two-storey demo: shared room and placement data for map, photos and floor plan.
+const roomNames=['キッチン','リビング','洗面所','主寝室','子ども部屋','書斎'];
+const roomFiles=['kitchen','living','washroom','bedroom','childroom','study'];
+const homePositions=[
+ {floor:1,name:'キッチン・シンク下',risk:'高',x:395,y:150,reason:'配管まわりの隙間と水気がある場所。侵入と滞留を見守る優先位置です。',position:'シンク下・配管の手前'},
+ {floor:1,name:'冷蔵庫の横',risk:'中',x:548,y:148,reason:'家電の放熱と壁際の隙間を確認。通気口をふさがない位置に置きます。',position:'冷蔵庫横の床面'},
+ {floor:1,name:'洗面台の下',risk:'中',x:400,y:296,reason:'排水管まわりの湿気を確認。水が直接かからない場所で見守ります。',position:'洗面台下・排水管付近'},
+ {floor:2,name:'主寝室・クローゼット前',risk:'中',x:97,y:296,reason:'収納内に湿気がこもりやすい場所。寝具や衣類の周辺環境を継続して確認します。',position:'収納前の壁際'},
+ {floor:2,name:'子ども部屋・窓際',risk:'低',x:542,y:144,reason:'窓まわりの結露と外部からの侵入経路を確認する補助位置です。',position:'窓の近く・ベッドから離れた壁際'},
+ {floor:2,name:'書斎・本棚の横',risk:'低',x:546,y:308,reason:'家具の裏にこもる湿気を見守ります。空気清浄機の吹出口から離して設置します。',position:'本棚横の床面'}
+];
+function floorSwitch(){return `<div class="floor-switch"><div><strong>2階建ての戸建て住宅</strong><small>1F：暮らしの空間 / 2F：プライベート空間</small></div><div class="segmented" aria-label="表示する階">${[1,2].map(n=>`<button data-floor="${n}" class="${state.floor===n?'selected':''}" aria-pressed="${state.floor===n}">${n}階</button>`).join('')}</div></div>`;}
+function furnish(type,x,y,w,h,label){
+ let inside='';
+ if(type==='bed')inside=`<rect x="5" y="5" width="${w-10}" height="20" rx="5" fill="#fff"/><path d="M4 32H${w-4}" stroke="#a4b8c2"/>`;
+ if(type==='sofa')inside=`<path d="M8 8H${w-8}V${h-8}H8Z M${w/2} 8V${h-8}" fill="none" stroke="#8eaaa6"/>`;
+ if(type==='desk')inside=`<rect x="${w/2-16}" y="4" width="32" height="15" rx="2" fill="#567584"/><path d="M${w/2} 19v5" stroke="#567584"/>`;
+ if(type==='sink')inside=`<ellipse cx="${w/2}" cy="${h/2}" rx="${w/4}" ry="${h/3}" fill="#eff8fc" stroke="#b0c6cf"/>`;
+ if(type==='washer')inside=`<circle cx="${w/2}" cy="${h/2}" r="${Math.min(w,h)*.32}" fill="#c7dce5"/>`;
+ if(type==='shelf')inside=`<path d="M${w/3} 2v${h-4}M${2*w/3} 2v${h-4}" stroke="#ad967b"/>`;
+ return `<g transform="translate(${x} ${y})"><rect width="${w}" height="${h}" rx="${type==='sofa'?10:4}" fill="${['bed','sofa'].includes(type)?'#dbe8e4':['desk','shelf','table'].includes(type)?'#e4d4b9':'#eef4f6'}" stroke="#acbbc0" stroke-width="1.5"/>${inside}<text x="${w/2}" y="${h+14}" class="furniture-label">${label}</text></g>`;
+}
+function richFloor(interactive=true){
+ const upper=state.floor===2;
+ const stuff=upper?
+ furnish('bed',135,102,120,150,'ダブルベッド')+furnish('shelf',40,92,45,164,'収納')+furnish('ac',135,40,100,16,'エアコン')+furnish('bed',350,78,62,85,'ベッド')+furnish('desk',450,70,92,38,'学習机')+furnish('shelf',350,250,42,82,'本棚')+furnish('desk',422,240,95,38,'デスク')+furnish('washer',530,239,27,36,'清浄機'):
+ furnish('sofa',52,123,76,133,'ソファ')+furnish('table',165,160,70,58,'テーブル')+furnish('tv',276,125,16,118,'TV')+furnish('table',140,260,115,58,'ダイニング')+furnish('ac',65,40,100,16,'エアコン')+furnish('sink',350,75,135,36,'シンク')+furnish('fridge',518,62,44,55,'冷蔵庫')+furnish('sink',350,240,108,38,'洗面台')+furnish('washer',510,240,52,56,'洗濯機');
+ return `<div class="rich-map"><div class="map-canvas"><svg viewBox="0 0 600 490" role="img" aria-label="${state.floor}階の家具・家電配置。${upper?'主寝室、子ども部屋、書斎':'リビング、キッチン、洗面所'}と階段"><defs><pattern id="wood" width="22" height="40" patternUnits="userSpaceOnUse"><rect width="22" height="40" fill="#f5ede0"/><path d="M0 0V40M22 0V40" stroke="#e9ddca"/></pattern><pattern id="tile" width="25" height="25" patternUnits="userSpaceOnUse"><rect width="25" height="25" fill="#edf4f7"/><path d="M0 0H25V25" fill="none" stroke="#dce7ed"/></pattern></defs><rect x="20" y="20" width="560" height="450" rx="5" fill="#fff" stroke="#869ca9" stroke-width="8"/><path d="M24 24H317V355H24Z" fill="url(#wood)"/><path d="M327 24H576V194H327Z" fill="url(#wood)"/><path d="M327 204H576V355H327Z" fill="url(#${upper?'wood':'tile'})"/><path d="M24 365H576V466H24Z" fill="#eef2f1"/><path d="M322 20V284M322 340V360M322 199H580M20 360H238M292 360H423M475 360H580" stroke="#94a7b1" stroke-width="7" fill="none"/><g stroke="#a9c5d0" stroke-width="6"><path d="M110 20H210M20 150V240M405 20H490M580 255V320"/></g><g fill="none" stroke="#b7c7cd" stroke-width="1.5"><path d="M238 360v-54a54 54 0 0 1 54 54M322 284h56a56 56 0 0 1-56 56M423 360v-52a52 52 0 0 1 52 52"/></g>${stuff}<g class="room-label"><text x="178" y="83">${upper?'主寝室 8帖':'リビング・ダイニング 18帖'}</text><text x="451" y="47">${upper?'子ども部屋 6帖':'キッチン'}</text><text x="451" y="225">${upper?'書斎 5帖':'洗面・ランドリー'}</text><text x="180" y="414">${upper?'2階ホール':'玄関・ホール'}</text></g><g transform="translate(430 380)"><rect width="126" height="70" fill="#e0e8ec" stroke="#aab9c2"/>${Array.from({length:8},(_,i)=>`<path d="M${i*16} 0V70" stroke="#aab9c2"/>`).join('')}<path d="M10 35H112m-9-7 9 7-9 7" stroke="#526f81" fill="none" stroke-width="2"/></g><text x="493" y="465" class="furniture-label">階段 ${upper?'↓ 1F':'↑ 2F'}</text></svg>${interactive&&state.layer?homePositions.map((p,i)=>p.floor===state.floor?`<button class="map-marker ${p.risk==='高'?'high':p.risk==='中'?'medium':'low'} ${state.place===i?'selected':''}" style="left:${p.x/6}%;top:${p.y/4.9}%" data-place="${i}" aria-label="${p.floor}階 ${p.name} リスク${p.risk}">${i+1}</button>`:'').join(''):''}</div></div>`;
+}
+function richPlacement(page){
+ if(page==='photos')return head('ROOM CAPTURE / TWO-STOREY HOME','撮影した部屋')+`<p class="muted">2階建て住宅の6枚の写真サンプル。画像をタップすると拡大できます。</p>${[1,2].map(f=>`<h2 class="section-title">${f}階 <small> / ${f===1?'リビング・水まわり':'寝室・子ども部屋・書斎'}</small></h2><div class="grid3 photo-grid">${roomNames.map((n,i)=>Math.floor(i/3)+1===f?`<button class="photo" data-photo="${i}">${roomArt(i)}<span>${n}<small>${f}F · 写真風生成サンプル ↗</small></span></button>`:'').join('')}</div>`).join('')}<p class="screen-note">写真と間取りはデモ用のイメージです。実測した住宅の再現ではありません。</p><a class="btn" href="#placement/floor">再現した間取りを見る →</a>`;
+ const switcher=floorSwitch();
+ if(page==='floor')return head('RECONSTRUCTED PLAN','画像から再現した間取り')+switcher+`<div class="panel"><div class="row"><h2>自宅 / ${state.floor}階</h2>${badge('サンプル解析完了')}</div>${richFloor(false)}<div class="grid3" style="margin-top:20px">${metric('対象の部屋','3室')+metric('対象フロア',state.floor+'F')+metric('住宅全体','6枚')}</div></div><p class="tip"><strong>家具・家電・動線を確認</strong>ベッド、収納、机、水まわりと階段の位置を表現しています。</p><a class="btn" href="#placement/map">この階の設置提案を見る →</a>`;
+ const p=homePositions[state.place];
+ return head('PLACEMENT / TWO-STOREY HOME','おすすめの設置位置',`<button class="secondary" data-layer>${state.layer?'リスク表示 OFF':'リスク表示 ON'}</button>`)+switcher+`<div class="map-grid"><div>${richFloor()}<div class="legend"><span><i class="dot red"></i>高リスク</span><span><i class="dot amber"></i>中リスク</span><span><i class="dot"></i>低リスク</span></div><p class="screen-note">番号は設置候補です。色付きの円は確認エリアのイメージです。</p></div><div>${homePositions.map((x,i)=>x.floor===state.floor?`<button class="place-choice ${state.place===i?'selected':''}" data-place="${i}"><small>${x.floor}F / 推奨位置 0${i+1}</small><strong>${x.name}</strong>${badge('リスク '+x.risk)}</button>`:'').join('')}</div></div><div class="panel" style="margin-top:20px"><small>SELECTED POSITION 0${state.place+1} / ${p.floor}F</small><h2 style="margin-top:10px">${p.name}</h2><p>${p.reason}</p><div class="tip"><strong>設置の目安：${p.position}</strong>miniで周辺環境を見守る位置のサンプル提案です。</div></div>`;
+}

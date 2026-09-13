@@ -4,6 +4,8 @@
 
 - `#mini/home`: P.5 Phase1。温湿度統計、赤外線検知履歴、交換管理、通知。
 - `#placement/map`: P.6 設置位置提案。リスクマップ、撮影サンプル、再現間取り。
+- デモ2は2階建て住宅。1F/2Fの切替、家具・家電配置、6か所の設置候補、6枚の生成写真を表示。
+- デモ2の間取り・写真データと描画は `placement.js`、スタイルは `placement.css`。
 - `#house/dashboard`: P.4 統合画面。mini状態管理、エアコン・空気清浄機操作。
 
 実装は `index.html`、`demo.css`、`theme.css`、`demo.js` と `assets/`。依存ライブラリはありません。
